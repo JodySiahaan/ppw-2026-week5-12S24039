@@ -1,0 +1,7 @@
+[2026-10-08 07:56:32] local.INFO: [SQL AUDIT] (7.76 ms) select * from `sessions` where `id` = ? limit 1  
+[2026-10-08 07:56:32] local.INFO: [SQL AUDIT] (42.55 ms) update `sessions` set `payload` = ?, `last_activity` = ?, `user_id` = ?, `ip_address` = ?, `user_agent` = ? where `id` = ?  
+[2026-10-08 07:56:33] local.INFO: [SQL AUDIT] (5.05 ms) select * from `sessions` where `id` = ? limit 1  
+[2026-10-08 07:56:33] local.INFO: [SQL AUDIT] (1.70 ms) select count(*) as `aggregate` from `bukus`  
+[2026-10-08 07:56:33] local.INFO: [SQL AUDIT] (1.12 ms) select * from `bukus` order by `created_at` desc limit 10 offset 0  
+[2026-10-08 07:56:33] local.INFO: [SQL AUDIT] (1.82 ms) select * from `kategoris` where `kategoris`.`id` in (2, 3, 4, 5)  
+[2026-10-08 07:56:33] local.INFO: [SQL AUDIT] (12.16 ms) update `sessions` set `payload` = ?, `last_activity` = ?, `user_id` = ?, `ip_address` = ?, `user_agent` = ? where `id` = ?  
