@@ -1,0 +1,212 @@
+{
+  "info": {
+    "name": "SIPUS-Del Web Services (Week 9 - 12S24039)",
+    "description": "Koleksi Pengujian SOAP Legacy & RESTful API v1 SIPUS-Del Minggu 9",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000/api/v1" },
+    { "key": "soap_url", "value": "http://127.0.0.1:8000/soap" },
+    { "key": "token", "value": "" },
+    { "key": "buku_id", "value": "1" },
+    { "key": "peminjaman_id", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "1. SOAP - Get WSDL Contract",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{soap_url}}/sipus.wsdl"
+      }
+    },
+    {
+      "name": "2. SOAP - CheckClearanceStatus (Valid XML)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "text/xml; charset=utf-8" }],
+        "body": {
+          "mode": "raw",
+          "raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:m=\"http://sipus.del.ac.id/soap/clearance\">\n  <soap:Body>\n    <m:CheckClearanceStatusRequest>\n      <m:nim_peminjam>12S24039</m:nim_peminjam>\n    </m:CheckClearanceStatusRequest>\n  </soap:Body>\n</soap:Envelope>"
+        },
+        "url": "{{soap_url}}/sipus"
+      }
+    },
+    {
+      "name": "3. SOAP - Fault Scenario (Empty NIM)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "text/xml; charset=utf-8" }],
+        "body": {
+          "mode": "raw",
+          "raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:m=\"http://sipus.del.ac.id/soap/clearance\">\n  <soap:Body>\n    <m:CheckClearanceStatusRequest>\n      <m:nim_peminjam></m:nim_peminjam>\n    </m:CheckClearanceStatusRequest>\n  </soap:Body>\n</soap:Envelope>"
+        },
+        "url": "{{soap_url}}/sipus"
+      }
+    },
+    {
+      "name": "4. REST Auth - Login Pustakawan (Get Bearer Token)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var res = pm.response.json();",
+              "if (res.data && res.data.access_token) {",
+              "    pm.collectionVariables.set('token', res.data.access_token);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Accept", "value": "application/json" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"pustakawan@del.ac.id\",\n  \"password\": \"password123\",\n  \"device_name\": \"postman-jody\"\n}"
+        },
+        "url": "{{base_url}}/auth/login"
+      }
+    },
+    {
+      "name": "5. REST Katalog - GET Bukus (Paginated + HATEOAS)",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": "{{base_url}}/bukus?per_page=5&sort=judul"
+      }
+    },
+    {
+      "name": "6. REST Katalog - POST Buku Baru (201 Created + Location)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var res = pm.response.json();",
+              "if (res.data && res.data.id) {",
+              "    pm.collectionVariables.set('buku_id', res.data.id);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Accept", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"kategori_id\": 1,\n  \"isbn\": \"9780132350884\",\n  \"judul\": \"Clean Code: Agile Software Craftsmanship\",\n  \"penulis\": \"Robert C. Martin\",\n  \"penerbit\": \"Prentice Hall\",\n  \"tahun_terbit\": 2008,\n  \"stok\": 1,\n  \"sinopsis\": \"Buku panduan prinsip kode bersih edisi pertama\"\n}"
+        },
+        "url": "{{base_url}}/bukus"
+      }
+    },
+    {
+      "name": "7. REST Katalog - PATCH Buku (Partial Update Stok)",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Accept", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"stok\": 2\n}"
+        },
+        "url": "{{base_url}}/bukus/{{buku_id}}"
+      }
+    },
+    {
+      "name": "8. REST Katalog - PUT Buku (Full Replacement Tanpa Sinopsis)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Accept", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"kategori_id\": 1,\n  \"isbn\": \"9780132350884\",\n  \"judul\": \"Clean Code (Revised Edition)\",\n  \"penulis\": \"Robert C. Martin\",\n  \"penerbit\": \"Prentice Hall\",\n  \"tahun_terbit\": 2008,\n  \"stok\": 1\n}"
+        },
+        "url": "{{base_url}}/bukus/{{buku_id}}"
+      }
+    },
+    {
+      "name": "9. REST Sirkulasi - POST Peminjaman Buku ACID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var res = pm.response.json();",
+              "if (res.data && res.data.id) {",
+              "    pm.collectionVariables.set('peminjaman_id', res.data.id);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Accept", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"buku_id\": {{buku_id}},\n  \"nim_peminjam\": \"12S24039\",\n  \"nama_peminjam\": \"Jody Alfonso Siahaan\",\n  \"durasi_hari\": 7\n}"
+        },
+        "url": "{{base_url}}/peminjamans"
+      }
+    },
+    {
+      "name": "10. REST Sirkulasi - POST Peminjaman Gagal Stok Habis (422 RFC 7807)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Accept", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"buku_id\": {{buku_id}},\n  \"nim_peminjam\": \"12S24001\",\n  \"nama_peminjam\": \"Mahasiswa Lain\",\n  \"durasi_hari\": 7\n}"
+        },
+        "url": "{{base_url}}/peminjamans"
+      }
+    },
+    {
+      "name": "11. REST Sirkulasi - PATCH Kembalikan Buku ACID",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Accept", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": "{{base_url}}/peminjamans/{{peminjaman_id}}/kembalikan"
+      }
+    },
+    {
+      "name": "12. REST Consumer - GET Referensi Eksternal OpenLibrary",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": "{{base_url}}/bukus/{{buku_id}}/referensi-eksternal"
+      }
+    }
+  ]
+}
