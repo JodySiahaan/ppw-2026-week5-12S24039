@@ -89,16 +89,16 @@ php artisan serve
 ![Login Bearer Token](docs/screenshots/02-auth-login.png)
 
 ### (c) GET Katalog Buku Terpaginasi + HATEOAS (`GET /api/v1/bukus`)
-![GET Katalog Buku HATEOAS](docs/screenshots/03-get-bukus-hateoas.png)
+![GET Katalog Buku HATEOAS](docs/screenshots/03-get-buku.png)
 
 ### (d) POST Buku Baru `201 Created` + Header `Location`
-![POST Buku 201 Created](docs/screenshots/04-post-buku-201.png)
+![POST Buku 201 Created](docs/screenshots/04-post-buku.png)
 
 ### (e) Bukti Perbedaan `PUT` (Full Replacement) vs `PATCH` (Partial Update)
-![Perbedaan PUT vs PATCH](docs/screenshots/05-put-vs-patch.png)
+![Perbedaan PUT vs PATCH](docs/screenshots/05-patch-buku.png)
 
 ### (f) Peminjaman Buku Sukses (`201`) & Penolakan Stok Habis / Konflik (`422` / `409` RFC 7807)
-![Transaksi Peminjaman ACID](docs/screenshots/06-peminjaman-acid.png)
+![Transaksi Peminjaman ACID](docs/screenshots/06-put-buku.png)
 
 ### (g) Bukti Eksplorasi GitHub REST API (Token Disensor) & Service Consumer OpenLibrary
-![Consumer API](docs/screenshots/07-consumer-api.png)
+![Consumer API](docs/screenshots/07-peminjaman-buku.png)
